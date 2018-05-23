@@ -13,16 +13,116 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import java.util.*;
 import java.io.*; //using serailization to input character data
-import java.util.HashMap;
+import java.util.TreeMap;
 
 
 //note: just add all the objects to an arraylist which will then be serialized, since each element within
 //is its own individual object even after serailization
 
-public class Attack {
-	
+public class Attack implements Serializable {
+
+    private TreeMap<Character,Weapons[]> profileMap = new TreeMap<Character,Weapons[]>(); //player team
+    private TreeMap<Character,Weapons[]> enemyProfileMap = new TreeMap<Character,Weapons[]>(); //enemylist
+
+    ArrayList<Character> characters = new ArrayList<Character>();
+    ArrayList<Weapons> weapons= new ArrayList<Weapons>();
+
+    Weapons weaponsArray[]= new Weapons[5]; //will serve as temprary array when putting weapons into treeset
+
 	public Attack() {// no clue as to what imma do with this yet, but its a constructor
 		
+	}
+
+	public void save(){
+
+        try { //serializing occurs, will act as saving data, very efficient
+            FileOutputStream saveState = new FileOutputStream("/tmp/savestate.ser");
+            ObjectOutputStream out = new ObjectOutputStream(saveState);
+            out.writeObject(profileMap);
+            out.close(); //closing it
+            saveState.close();
+            System.out.printf("Serialized data is saved in /tmp/savestate.ser");
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+
+    }
+
+    public void damage(Character one, Character two){ //will be the method used to calculate damage
+
+    }
+
+    public void load(){
+
+        TreeMap<Character,Weapons[]> profileMap = null;
+        try {
+            FileInputStream loadState = new FileInputStream("/tmp/savestate.ser");
+            ObjectInputStream in = new ObjectInputStream(loadState);
+            profileMap = (TreeMap<Character, Weapons[]>) in.readObject();
+            in.close();
+            loadState.close(); //closing it
+        } catch (IOException i) {
+            i.printStackTrace();
+            return;
+        } catch (ClassNotFoundException c) {
+            System.out.println("Not found");
+            c.printStackTrace();
+            return;
+        }
+
+    }
+
+    public void refreshData(){
+
+	    startingData(); //simply calls upon this in order to create a new save file
+
+    }
+
+    public void startingData(){
+
+        try {
+            Scanner inFile = new Scanner(new File("Character Statistics.txt")); //Scanner as input; input is in file
+            while (inFile.hasNext()) {
+                characters.add(new Character(inFile.nextLine()));
+            }
+            //inputing all the characters, which will then be put into the treeset
+            inFile.close();
+
+
+
+        }
+
+        catch(IOException e) {
+                System.out.println("Datafile not found");
+        }
+
+        try{
+			Scanner inFile2 = new Scanner(new File("Weapon Statistics.txt")); //Scanner as input; input is in file
+			while (inFile2.hasNext()) {
+				weapons.add(new Weapons(inFile2.nextLine()));
+			}
+			//inputing all the characters, which will then be put into the treeset
+			inFile2.close();
+		}
+		catch(IOException e) {
+			System.out.println("Datafile not found");
+		}
+
+        weaponsArray[0]=weapons.get(0);
+        profileMap.put(characters.get(0),weaponsArray);
+        weaponsArray[0]=weapons.get(4);
+        profileMap.put(characters.get(1),weaponsArray);
+        weaponsArray[0]=weapons.get(8);
+        profileMap.put(characters.get(2),weaponsArray);
+        weaponsArray[0]=weapons.get(12);
+        profileMap.put(characters.get(3),weaponsArray);
+        weaponsArray[0]=weapons.get(16);
+        profileMap.put(characters.get(4),weaponsArray);
+
+        save();
+
+        //inputing all the data into the treeset for preparing the beginning of the game
+
 	}
 
 }
