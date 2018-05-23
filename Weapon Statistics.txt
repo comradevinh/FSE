@@ -1,0 +1,28 @@
+Iron Sword,sword,E,500,6,4
+Steel Sword,sword,D,750,8,6
+Silver Sword,sword,B,1000,10,8
+Iron Lance,lance,E,700,8,6
+Steel Lance,lance,D,1050,10,8
+Silver Lance,lance,B,1400,12,10
+Iron Axe,axe,E,600,10,7
+Steel Axe,axe,D,900,12,9
+Silver Axe,axe,B,1200,14,12
+Iron Bow,bow,E,400,4,3
+Steel Bow,bow,D,600,6,6
+Silver Bow,bow,B,800,8,9
+Heal Staff,staff,E,300,0,10
+Mend Staff,staff,D,500,2,15
+Recover Staff,staff,B,700,4,20
+Fire,anima,E,500,5,6
+Meteor,anima,D,750,6,10
+Inferno,anima,B,1000,7,14
+Waste,dark,E,750,10,12
+Eclipse,dark,D,1000,12,16
+Apocalypse,dark,B,1250,14,18
+Duzzi Pipe,sword,A,0,12,18
+Mohan Pipe,lance,A,0,14,20
+Banwell Pipe,axe,A,0,16,22
+Hudson Pipe,bow,A,0,10,16
+Ing Curves,staff,A,0,5,40
+Mckenzie Roasts,anima,A,0,5,25
+Procrascination,dark,A,0,30,40

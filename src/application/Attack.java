@@ -39,9 +39,11 @@ public class Attack implements Serializable {
             FileOutputStream saveState = new FileOutputStream("/tmp/savestate.ser");
             ObjectOutputStream out = new ObjectOutputStream(saveState);
             out.writeObject(profileMap);
+            out.writeObject(enemyProfileMap);
+            out.writeObject(weapons);
             out.close(); //closing it
             saveState.close();
-            System.out.printf("Serialized data is saved in /tmp/savestate.ser");
+            System.out.println("Serialized data is saved in /tmp/savestate.ser");
         } catch (IOException i) {
             i.printStackTrace();
         }
@@ -53,12 +55,12 @@ public class Attack implements Serializable {
     }
 
     public void load(){
-
-        TreeMap<Character,Weapons[]> profileMap = null;
         try {
             FileInputStream loadState = new FileInputStream("/tmp/savestate.ser");
             ObjectInputStream in = new ObjectInputStream(loadState);
             profileMap = (TreeMap<Character, Weapons[]>) in.readObject();
+            enemyProfileMap=(TreeMap<Character, Weapons[]>) in.readObject();
+            weapons=(ArrayList<Weapons>) in.readObject();
             in.close();
             loadState.close(); //closing it
         } catch (IOException i) {
@@ -67,7 +69,6 @@ public class Attack implements Serializable {
         } catch (ClassNotFoundException c) {
             System.out.println("Not found");
             c.printStackTrace();
-            return;
         }
 
     }
@@ -127,7 +128,7 @@ public class Attack implements Serializable {
 
 }
 
-class Character implements Serializable{
+class Character{
 	
 	//declaring all the character stats and variables
 	
@@ -191,6 +192,10 @@ class Character implements Serializable{
 	
 	//METHODS TO GET ACCESS TO INFORMATION
 	
+	public String getName() {
+		return Name;
+	}
+	
 	public int getHealth() {
 		return HP;
 	}
@@ -211,6 +216,10 @@ class Character implements Serializable{
 		return SKL;
 	}
 	
+	public int getSpeed() {
+		return SPD;
+	}
+	
 	public int getDefence() {
 		return DEF;
 	}
@@ -221,6 +230,10 @@ class Character implements Serializable{
 	
 	public int getBuild() {
 		return BLD;
+	}
+	
+	public int getExp() {
+		return EXP;
 	}
 	
 	//METHODS TO ALTER INFORMATIONS
@@ -244,9 +257,13 @@ class Character implements Serializable{
 		HPMAX+=1;
 	}
 	
+	public void changeExp(int additionalExp) {
+		EXP+=additionalExp;
+	}
+	
 }
 
-class Weapons implements Serializable{
+class Weapons{
 	
 	private String Name; //determines type of weapon
 	private String Type; //determines what item its made out of, e.g. silver or iron, or anima and light
