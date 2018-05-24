@@ -1,0 +1,7 @@
+Alex,35,15,13,12,7,0,10,1,C,Sword,1,Sure Strike,Assassin,Physical
+Andrew,50,15,15,13,8,0,11,1,D,Dark,2,Shield,Prayer,Shaman,Magical
+Ryan,65,20,20,14,11,12,12,1,C,Dark,2,Prayer,Critical,Necromancer,Magical
+Henry,70,20,22,16,11,13,12,1,C,Dark,2,Prayer,Critical,Necromancer,Magical
+Henning,80,20,24,18,18,16,15,2,B,B,Dark,Anima,2,Sure Strike,Critical,Dark Sage,Magical
+Reem,80,25,27,20,17,18,14,2,B,A,Dark,Anima,2,Critical,Sure Strike,Dark Sage,Magical
+Maggie,120,35,40,10,30,30,30,1,A,Dark,2,Prayer,Shield,Demon Ruler,Magical

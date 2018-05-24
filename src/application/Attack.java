@@ -250,6 +250,52 @@ public class Attack implements Serializable {
 
     }
 
+    public boolean weaponUsabale(Character c, Weapons w){ //will determine if weapons are usable
+
+        ArrayList<String> WeaponTypes=c.getWeaponTypes();
+        ArrayList<String> WeaponRanks=c.getWeaponRanks();
+
+	    //checking if weapon is usable by character
+
+        int weaponIndex=-1; //index of weapon rank, no assigned index yet
+        boolean weaponWield=false; //will determine if character acn use actual weapon
+
+        for (int i=0;i<WeaponTypes.size();i++){
+            if (WeaponTypes.get(i).equals(w.getType())){
+                weaponIndex=i;
+                weaponWield=true; //
+                break;
+            }
+        }
+
+        if (weaponWield==false){ //if weapon isn't usable, false is returned, method ends
+            return false;
+        }
+
+        //checking if weapon rank is high enough to use, if weapon type is usable
+
+	    int cRank=(int)WeaponRanks.get(weaponIndex).charAt(0); //turning character rank character into ascii values to be compared
+	    int wRank=(int)w.getRank().charAt(0); //turning weapon rank character into ascii values to be compared
+
+        if (wRank<=cRank){ //if ascii value of wRank is less than that of cRank, e.g. A rank person using E rank weapon
+            return true;
+        }
+        else return false; //if weapon isn't usable, end method there
+
+    }
+
+    public void battleSystem(){
+	    boolean fighting= true; //will determine when the battle ends
+        while (fighting==true){
+            //choice to run or stay
+
+            //player phase of combat
+
+            //enemy phase of combat
+
+        }
+    }
+
 }
 
 class Character{
@@ -369,6 +415,14 @@ class Character{
 
     public ArrayList<String> getSkills(){
         return Skills;
+    }
+    
+    public ArrayList<String> getWeaponRanks(){
+        return WeaponRanks;
+    }
+    
+    public ArrayList<String> getWeaponTypes(){
+        return WeaponTypes;
     }
 	
 	//METHODS TO ALTER INFORMATIONS
