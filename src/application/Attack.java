@@ -250,7 +250,7 @@ public class Attack implements Serializable {
 
     }
 
-    public boolean weaponUsabale(Character c, Weapons w){ //will determine if weapons are usable
+    public boolean weaponUsable(Character c, Weapons w){ //will determine if weapons are usable
 
         ArrayList<String> WeaponTypes=c.getWeaponTypes();
         ArrayList<String> WeaponRanks=c.getWeaponRanks();
@@ -277,23 +277,97 @@ public class Attack implements Serializable {
 	    int cRank=(int)WeaponRanks.get(weaponIndex).charAt(0); //turning character rank character into ascii values to be compared
 	    int wRank=(int)w.getRank().charAt(0); //turning weapon rank character into ascii values to be compared
 
-        if (wRank<=cRank){ //if ascii value of wRank is less than that of cRank, e.g. A rank person using E rank weapon
+        if (wRank>=cRank){ //if ascii value of wRank is more than that of cRank, e.g. A rank person using E rank weapon
             return true;
         }
         else return false; //if weapon isn't usable, end method there
 
     }
 
-    public void battleSystem(){
+    public void battleSystem(Character enemyFight, Weapons[] enemyArsenal){ //since enemies differ accoreding to collision, must account for all cases
 	    boolean fighting= true; //will determine when the battle ends
+
+        Scanner choice = new Scanner(System.in);
+
         while (fighting==true){
             //choice to run or stay
 
             //player phase of combat
 
+            Set<Character> players= profileMap.keySet(); //turns into set to be displayed later as print statements
+            //**pre-graphics
+
+            for (Character chars: players){ //goes through each character in the table
+                boolean passTurn=false; //turn isn't passed yet, that is player's choice
+                Weapons usedArm=weaponsArray[0]; //will be selected, currently just given random weapon value to be initialized
+
+                while (true) {
+
+                    System.out.println("Choose your weapon");
+                    System.out.println();
+                    System.out.println(chars.getName());
+                    System.out.println();
+
+                    Weapons[] arms= profileMap.get(chars);
+
+                    for (int i=0;i<arms.length;i++){ //displays all weapon options
+                        System.out.print((i+1)+". ");
+                        System.out.println(arms[i]);
+                    }
+
+                    System.out.println((arms.length+1)+". Pass Turn");
+
+                    int selection=choice.nextInt();
+
+                    if (selection==arms.length+1){ //if they pass the turn, nothing is done
+                        passTurn=true; //turn will be passed
+                        break; //ends player selection
+                    }
+                    else if(selection<1 || selection>arms.length+1){
+                        System.out.println("Option not valid");
+                        System.out.println();
+                    }
+                    else if (weaponUsable(chars,arms[selection-1])==false){
+                        usedArm=arms[selection-1];
+                        System.out.println("Weapon is unusable");
+                        System.out.println(); //extra line for neat format, for pregraphics
+                    }
+                    else{
+                        System.out.println(chars.getName()+" selects "+arms[selection-1].getName());
+                        System.out.println();
+                        break;
+                    }
+                }
+
+                if (passTurn!=true){
+                    if (hitMiss(chars,enemyFight,usedArm,enemyArsenal[0])==true){ //if it hits
+                        int hit=damage(chars,enemyFight,usedArm,enemyArsenal[0]);
+                        System.out.println(chars.getName()+" does "+hit+" damage.");
+                        enemyFight.changeHealth(hit,"down"); //deducts health from enemy
+                    }
+                    else{ //if it misses
+                        System.out.println(chars.getName()+"missed! ");
+                        System.out.println();
+                    }
+                }
+
+                //checking to see if enemy dies
+
+                if (enemyFight.charFallen()==true){
+                    break; //will break the loop so it switches to enemy phase, more loops will break then
+                }
+
+            }
+
             //enemy phase of combat
 
+            if (enemyFight.charFallen()==true){
+                fighting=false; //fighting loop ends, match ends
+            }
+
         }
+
+        choice.close();
     }
 
 }
@@ -308,8 +382,7 @@ class Character{
 	private ArrayList<String> WeaponTypes= new ArrayList<String>(); //determines types of weapons usable
 	
 	private int HPMAX; //health points
-	private int STR; //strength, combines with might of weapon in order to determine attack power
-	private int MAG; //magic, combines with might of magic tome in order to determine attack power
+	private int STR; //strength/magic, combines with might of weapon in order to determine attack power
 	private int SKL; //skill, helps determine hit rate
 	private int SPD; //speed, will help determine avoidance
 	private int DEF; //defense; attack power subtracted by defense to determine damage done to character
@@ -332,20 +405,19 @@ class Character{
 		this.Name=data[0]; //assigning values and initializing variables
 		this.HPMAX=Integer.parseInt(data[1]);
 		this.STR=Integer.parseInt(data[2]);
-		this.MAG=Integer.parseInt(data[3]);
-		this.SKL=Integer.parseInt(data[4]);
-		this.SPD=Integer.parseInt(data[5]);
-		this.DEF=Integer.parseInt(data[6]);
-		this.MDEF=Integer.parseInt(data[7]);
-		this.BLD=Integer.parseInt(data[8]);
-		this.WPNTYPES=Integer.parseInt(data[9]);
+		this.SKL=Integer.parseInt(data[3]);
+		this.SPD=Integer.parseInt(data[4]);
+		this.DEF=Integer.parseInt(data[5]);
+		this.MDEF=Integer.parseInt(data[6]);
+		this.BLD=Integer.parseInt(data[7]);
+		this.WPNTYPES=Integer.parseInt(data[8]);
 		
 		for (int i=0;i<WPNTYPES;i++) {
-			WeaponRanks.add(data[9+i+1]);//adds the ranks accordingly
+			WeaponRanks.add(data[8+i+1]);//adds the ranks accordingly
 		}
 		
 		for (int i=0;i<WPNTYPES;i++) {
-			WeaponTypes.add(data[9+WPNTYPES+i+1]); //adds the types of weapons usable
+			WeaponTypes.add(data[8+WPNTYPES+i+1]); //adds the types of weapons usable
 		}
 		
 		int tempPos=9+(WPNTYPES*2)+1; //will be used to continue, so that calculations to get positions aren't messy
@@ -379,10 +451,6 @@ class Character{
 	
 	public int getStrength() {
 		return STR;
-	}
-	
-	public int getMagic() {
-		return MAG;
 	}
 	
 	public int getSkill() {
@@ -434,7 +502,7 @@ class Character{
 				HP=HPMAX; //character caps health without going over
 			}
 		}
-		else {
+		else if (gainlost.equals("down")) {
 			HP-=number;
 			if (HP<0) {
 				HP=0; //character dies
@@ -442,14 +510,44 @@ class Character{
 		}
 	}
 	
-	public void upHealthMax() { //will boost the health cap for a character during a level up
-		HPMAX+=1;
-	}
-	
 	public void changeExp(int additionalExp) {
 		EXP+=additionalExp;
 	}
 	
+	//METHODS TO RAISE STATS DURING LEVELS
+	
+	public void upHealthMax() { //will boost the health cap for a character during a level up
+		HPMAX+=1;
+	}
+	
+	public void upStrength() { //will boost the health cap for a character during a level up
+		STR+=1;
+	}
+	
+	public void upSkill() { //will boost the health cap for a character during a level up
+		SKL+=1;
+	}
+	
+	public void upSpeed() { //will boost the health cap for a character during a level up
+		SPD+=1;
+	}
+	
+	public void upDefence() { //will boost the health cap for a character during a level up
+		DEF+=1;
+	}
+	
+	public void upMDefence() { //will boost the health cap for a character during a level up
+		MDEF+=1;
+	}
+	
+	//METHODS TO CHECK CERTAIN CONDITIONS
+	
+	public boolean charFallen() {
+		if (HP<=0) {
+			return true; //no more health, therefore dead
+		}
+		else return false;
+	}
 }
 
 class Weapons{
