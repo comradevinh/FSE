@@ -1,4 +1,4 @@
-,Vinh,25,7,6,7,7,2,8,2,D,E,Sword,Lance,2,Sure Strike,Critical,0,Hero,Physical
+Vinh,25,7,6,7,7,2,8,2,D,E,Sword,Lance,2,Sure Strike,Critical,0,Hero,Physical
 Hongyu,23,5,9,10,5,4,5,1,D,Bows,2,Critical,Prayer,0,Sniper,Physical
 Adam,25,2,6,10,4,5,6,1,D,Staff,2,Prayer,Shield,0,Healer,Magical
 Alec,35,13,6,4,10,0,10,2,D,E,Axe,Lance,2,Shield,Critical,0,Warrior,Physical

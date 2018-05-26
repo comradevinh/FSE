@@ -290,52 +290,68 @@ public class Attack implements Serializable {
         Scanner choice = new Scanner(System.in);
 
         while (fighting==true){
+            boolean teamDefeated=true; //will see if every character has fallen or not
+
             //choice to run or stay
 
-            //player phase of combat
+            //PLAYER PHASE OF COMBAT
 
-            Set<Character> players= profileMap.keySet(); //turns into set to be displayed later as print statements
+            Set<Character> players= profileMap.keySet(); //turns into set to be displayed later as print statement
             //**pre-graphics
+
+            //checks if characters are dead
+            for (Character chars:players){
+                if (chars.getFallen()==false){
+                    teamDefeated=false; //inplies that there is still one character left
+                    break; //will end loop once everything is checked
+                }
+            }
+
+            if (teamDefeated==true){//if whole team is fallen
+                fighting=false; //match ends
+            }
 
             for (Character chars: players){ //goes through each character in the table
                 boolean passTurn=false; //turn isn't passed yet, that is player's choice
                 Weapons usedArm=weaponsArray[0]; //will be selected, currently just given random weapon value to be initialized
 
-                while (true) {
+                if (chars.getFallen()!=true){ //if character hasn't fallen
+                    while (true) {
 
-                    System.out.println("Choose your weapon");
-                    System.out.println();
-                    System.out.println(chars.getName());
-                    System.out.println();
-
-                    Weapons[] arms= profileMap.get(chars);
-
-                    for (int i=0;i<arms.length;i++){ //displays all weapon options
-                        System.out.print((i+1)+". ");
-                        System.out.println(arms[i]);
-                    }
-
-                    System.out.println((arms.length+1)+". Pass Turn");
-
-                    int selection=choice.nextInt();
-
-                    if (selection==arms.length+1){ //if they pass the turn, nothing is done
-                        passTurn=true; //turn will be passed
-                        break; //ends player selection
-                    }
-                    else if(selection<1 || selection>arms.length+1){
-                        System.out.println("Option not valid");
+                        System.out.println("Choose your weapon");
                         System.out.println();
-                    }
-                    else if (weaponUsable(chars,arms[selection-1])==false){
-                        usedArm=arms[selection-1];
-                        System.out.println("Weapon is unusable");
-                        System.out.println(); //extra line for neat format, for pregraphics
-                    }
-                    else{
-                        System.out.println(chars.getName()+" selects "+arms[selection-1].getName());
+                        System.out.println(chars.getName());
                         System.out.println();
-                        break;
+
+                        Weapons[] arms= profileMap.get(chars);
+
+                        for (int i=0;i<arms.length;i++){ //displays all weapon options
+                            System.out.print((i+1)+". ");
+                            System.out.println(arms[i]);
+                        }
+
+                        System.out.println((arms.length+1)+". Pass Turn");
+
+                        int selection=choice.nextInt();
+
+                        if (selection==arms.length+1){ //if they pass the turn, nothing is done
+                            passTurn=true; //turn will be passed
+                            break; //ends player selection
+                        }
+                        else if(selection<1 || selection>arms.length+1){ //if selection isn't valid
+                            System.out.println("Option not valid");
+                            System.out.println();
+                        }
+                        else if (weaponUsable(chars,arms[selection-1])==false){
+                            usedArm=arms[selection-1];
+                            System.out.println("Weapon is unusable");
+                            System.out.println(); //extra line for neat format, for pregraphics
+                        }
+                        else{ //whenever weaopon is usable
+                            System.out.println(chars.getName()+" selects "+arms[selection-1].getName());
+                            System.out.println();
+                            break; //weapon selection ends
+                        }
                     }
                 }
 
@@ -359,11 +375,52 @@ public class Attack implements Serializable {
 
             }
 
-            //enemy phase of combat
+            //ENEMY PHASE OF COMBAT
 
             if (enemyFight.charFallen()==true){
                 fighting=false; //fighting loop ends, match ends
             }
+
+            int mostDamage=-1; //initilizing variable, will be used to see which character is most vulnerable
+            Character mostVulnerable= new Character("meme,0,0,0,0,0,0,0,2,E,E,Sword,Lance,2,lol,lol,0,MemeGod,Physical");
+            //will be used to find character that can get most damage inflicted upon them, var already initialized
+
+
+            Weapons[] armsCharChosen=weaponsArray; //initializing the variable for the character weapon arsenal
+            for (Character chars:players) { //checking vulnerability of character
+
+                Weapons[] arms=profileMap.get(chars); //initializing the variable for the character weapon arsenal
+
+                if (mostDamage<damage(enemyFight,chars,enemyArsenal[0],arms[0])){
+                    mostDamage=damage(enemyFight,chars,enemyArsenal[0],arms[0]);
+                    mostVulnerable=chars;
+                    armsCharChosen= profileMap.get(chars);
+                }
+
+            }
+
+            //actually inflicting the damage upon tbe player
+
+            if (hitMiss(enemyFight,mostVulnerable,enemyArsenal[0],armsCharChosen[0])==true){
+                System.out.println(enemyFight.getName()+"used "+enemyArsenal[0].getName());
+                System.out.println(enemyFight.getName()+"did "+mostDamage+" damage!");
+
+                for (Character chars:players){ //going through to find character and kill them
+                    if (chars==mostVulnerable){
+                        chars.changeHealth(mostDamage,"down"); //inflicts damage
+                        break; //stops loop after damage is done
+                    }
+
+                }
+            }
+
+            TreeMap<Character, Weapons[]> tempProfileMap= new TreeMap<Character, Weapons[]>(); //after both turns finished, updates status of profileMap
+            for (Character chars:players){
+                Weapons[] arsenal=tempProfileMap.get(chars);
+                tempProfileMap.put(chars,arsenal); //puts back into temporary profileMap
+            }
+
+            profileMap=tempProfileMap; //reassigns value of profile map so it updates
 
         }
 
@@ -397,6 +454,8 @@ class Character{
 	private int EXP; //experience that will determine level ups
 	
 	private int HP; //will be the variable that is changed
+	
+	private boolean fallen= false; //will determine if a character has fallen
 	
 	public Character(String characterStat) { //constructor for character class
 		
@@ -480,6 +539,10 @@ class Character{
 	public int getExp() {
 		return EXP;
 	}
+	
+	public boolean getFallen() { //will return to see if character has fallen
+		return fallen;
+	}
 
     public ArrayList<String> getSkills(){
         return Skills;
@@ -507,6 +570,12 @@ class Character{
 			if (HP<0) {
 				HP=0; //character dies
 			}
+		}
+	}
+	
+	public void reviveChar() { //reviving characters after battle
+		if (fallen=true) {
+			fallen=false; //will revive of the player
 		}
 	}
 	
@@ -544,6 +613,7 @@ class Character{
 	
 	public boolean charFallen() {
 		if (HP<=0) {
+			fallen=true; //extra safeguard, since permadeath is not a concept present in game
 			return true; //no more health, therefore dead
 		}
 		else return false;
