@@ -474,6 +474,7 @@ public class Attack implements Serializable {
                                         if (c.getHealth()<c.getHealthMax()){
                                             System.out.println(chars.getName()+" heals "+c.getName());
                                             c.changeHealth(chars.getStrength()+usedArm.getMight(),"up");
+                                            weaponExperience(chars,usedArm); //adds weapon experience
                                             heal=true;
                                             break;
                                         }
@@ -497,7 +498,7 @@ public class Attack implements Serializable {
                             int hit=damage(chars,enemyFight,usedArm,enemyArsenal[0]);
                             System.out.println(chars.getName()+" does "+hit+" damage.");
                             enemyFight.changeHealth(hit,"down"); //deducts health from enemy
-                            chars=weaponExperience(chars,usedArm); //adds weapon experience
+                            weaponExperience(chars,usedArm); //adds weapon experience
                         }
                         else{ //if it misses
                             System.out.println(chars.getName()+"missed! ");
