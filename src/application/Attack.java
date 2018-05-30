@@ -403,8 +403,7 @@ public class Attack implements Serializable {
 
                 if (chars.getFallen()!=true){ //if character hasn't fallen
                     while (true) {
-
-                        System.out.println("Choose your weapon");
+                        System.out.println("Choose your item");
                         System.out.println();
                         System.out.println(chars.getName());
                         System.out.println();
@@ -430,26 +429,80 @@ public class Attack implements Serializable {
                         }
                         else if (weaponUsable(chars,arms[selection-1])==false){
                             usedArm=arms[selection-1];
-                            System.out.println("Weapon is unusable");
+                            System.out.println("Item is unusable");
                             System.out.println(); //extra line for neat format, for pregraphics
                         }
-                        else{ //whenever weaopon is usable
-                            System.out.println(chars.getName()+" selects "+arms[selection-1].getName());
-                            System.out.println();
-                            break; //weapon selection ends
+                        else{ //whenever weapon is usable
+                            if (chars.getUnit().equals("Healer")){
+                                boolean healingPossible=false;
+                                for (Character c:players){
+                                    if (c.getHealth()<c.getHealthMax()){
+                                        healingPossible=true; //now possible to heal
+                                    }
+                                }
+                                if (healingPossible){
+                                    System.out.println(chars.getName()+" uses "+usedArm.getName());
+                                    break; //breaks loop
+                                }
+                                else{
+                                    System.out.println("Healing is not possible!");
+                                }
+                            }
+                            else{
+                                System.out.println(chars.getName()+" selects "+arms[selection-1].getName());
+                                System.out.println();
+                                break; //weapon selection ends
+                            }
                         }
                     }
                 }
 
                 if (passTurn!=true){
-                    if (hitMiss(chars,enemyFight,usedArm,enemyArsenal[0])==true){ //if it hits
-                        int hit=damage(chars,enemyFight,usedArm,enemyArsenal[0]);
-                        System.out.println(chars.getName()+" does "+hit+" damage.");
-                        enemyFight.changeHealth(hit,"down"); //deducts health from enemy
+                    if (chars.getUnit().equals("Healer")){
+                        while (true){
+                            //selecting a character to heal
+                            int counter=1;
+                            boolean heal=false; //character not healed yet
+                            for (Character c:players){
+                                System.out.println(counter+". "+c.getName());
+                            }
+                            int selectHeal= choice.nextInt();
+                            if (selectHeal>=1 && selectHeal<=counter){
+                                counter=1;
+                                for (Character c:players){
+                                    if (counter==selectHeal){
+                                        if (c.getHealth()<c.getHealthMax()){
+                                            System.out.println(chars.getName()+" heals "+c.getName());
+                                            c.changeHealth(chars.getStrength()+usedArm.getMight(),"up");
+                                            heal=true;
+                                            break;
+                                        }
+                                    }
+                                    else{
+                                        counter+=1;
+                                    }
+                                }
+                                if (heal==true){
+                                    break; //ends the loop where the character selects a person to heal, including oneself
+                                }
+                            }
+                            else{
+                                System.out.println("Not a valid choice");
+                                System.out.println();
+                            }
+                        }
                     }
-                    else{ //if it misses
-                        System.out.println(chars.getName()+"missed! ");
-                        System.out.println();
+                    else{
+                        if (hitMiss(chars,enemyFight,usedArm,enemyArsenal[0])==true){ //if it hits
+                            int hit=damage(chars,enemyFight,usedArm,enemyArsenal[0]);
+                            System.out.println(chars.getName()+" does "+hit+" damage.");
+                            enemyFight.changeHealth(hit,"down"); //deducts health from enemy
+                            chars=weaponExperience(chars,usedArm); //adds weapon experience
+                        }
+                        else{ //if it misses
+                            System.out.println(chars.getName()+"missed! ");
+                            System.out.println();
+                        }
                     }
                 }
 
@@ -544,6 +597,7 @@ class Character{
 	private int WPNTYPES; //number that determines how many types of weapons can be used
 	private int SKLNUM; //number of skills a character has
 	
+	private String Unit; //determines what type of unit they are
 	private String Type; //determines whether they're magical or physical fighters
 	
 	private int HP; //will be the variable that is changed
@@ -594,9 +648,10 @@ class Character{
 		}
 		
 		this.EXP=Integer.parseInt(data[tempPos+SKLNUM+1]);
-		this.Type=data[tempPos+SKLNUM+2];
+		this.Unit=data[tempPos+SKLNUM+2];
+		this.Type=data[tempPos+SKLNUM+3];
 		
-		tempPos=tempPos+SKLNUM+2;
+		tempPos=tempPos+SKLNUM+3;
 		
 		this.LVL=Integer.parseInt(data[tempPos+1]);
 		this.EXP=Integer.parseInt(data[tempPos+2]);
@@ -652,6 +707,10 @@ class Character{
 	
 	public int getBuild() {
 		return BLD;
+	}
+	
+	public String getUnit() {
+		return Unit;
 	}
 	
 	public String getType() {
