@@ -1,5 +1,5 @@
-Vinh,25,7,6,7,7,2,8,2,D,E,Sword,Lance,2,Sure Strike,Critical,0,Hero,Physical
-Hongyu,23,5,9,10,5,4,5,1,D,Bows,2,Critical,Prayer,0,Sniper,Physical
-Adam,25,2,6,10,4,5,6,1,D,Staff,2,Prayer,Shield,0,Healer,Magical
-Alec,35,13,6,4,10,0,10,2,D,E,Axe,Lance,2,Shield,Critical,0,Warrior,Physical
-Shahed,20,9,9,8,0,9,3,1,D,Anima,2,Sure Strike,Critical,0,Mage,Magical
+Vinh,25,7,6,7,7,2,8,2,D,E,Sword,Lance,2,Sure Strike,Critical,0,Hero,Physical,1,0,75,45,50,65,55,35,60,0,0
+Hongyu,23,5,9,10,5,4,5,1,D,Bows,2,Critical,Prayer,0,Sniper,Physical,1,0,75,30,75,75,55,35,45,0
+Adam,25,2,6,10,4,5,6,1,D,Staff,2,Prayer,Shield,0,Healer,Magical,1,0,25,35,65,100,100,100,15,0
+Alec,35,13,6,4,10,0,10,2,D,E,Axe,Lance,2,Shield,Critical,0,Warrior,Physical,1,0,100,100,45,25,100,25,100,0,0
+Shahed,20,9,9,8,0,9,3,1,D,Anima,2,Sure Strike,Critical,0,Mage,Magical,1,0,60,100,90,90,25,100,25,0

@@ -283,9 +283,95 @@ public class Attack implements Serializable {
         else return false; //if weapon isn't usable, end method there
 
     }
+    
+    public Character weaponExperience(Character c,Weapons w) {//using weapons must raise experience, so improvement is there
+    	String weaponType= w.getType(); //getting type first
+        int placement=0;
+
+        for (int i=0;i<c.getWeaponTypes().size();i++){
+            if (c.getWeaponTypes().get(i).equals(weaponType)){
+                c.weaponExpGain(i,w.getWeaponEXP());
+            }
+        } //changes the actual EXP, and possibly upgrades the weapon rank if needed
+    	
+    	return c; //will return character, so that new char values can be reassigned to real character
+    }
+
+    public TreeMap<Character,Weapons[]> gainExperience(TreeMap<Character,Weapons[]> characters, Character enemy){ //code for gaining experience
+        Set<Character> players= characters.keySet(); //turns into set to be manipulated (screw iterators lol)
+
+        int lowestLevel=100000000; //initialized variable that will be altered after going through loop
+
+        for (Character chars: players){
+            //finding player with lowest stats
+            if (chars.getLevel()<lowestLevel){
+                lowestLevel=chars.getLevel(); //getting the lowest level, person with lowest gets most exp
+            }
+        }
+
+        //going through everything second time in order to actually level up
+
+        for (Character chars:players){
+            int expGained=100; //initializing variable, max xp one can get before levelling up
+            expGained-=(chars.getLevel()-lowestLevel)*3;
+            if (chars.getFallen()){//if character dies
+                expGained-=30; //since they die they don't get as much experience
+            }
+            if (expGained<=0){
+                expGained=0; //ensures it doesn't go below 0
+            }
+            if (chars.changeExp(expGained)){//if level up occurs
+                chars=gainLevelStats(chars);
+            }
+        }
+
+        TreeMap<Character,Weapons[]> tempProfileMap = new TreeMap<Character,Weapons[]>();
+
+        for (Character chars:players){
+            Weapons[] arsenal=tempProfileMap.get(chars);
+            tempProfileMap.put(chars,arsenal); //puts back into temporary profileMap
+        }
+
+        return tempProfileMap;
+        //converting everything back so that it changes values of actual treemap, instead of just set
+    }
+
+    public Character gainLevelStats(Character c){ //raising stats
+	    Random rand = new Random();
+	    int RNG= rand.nextInt();
+	    c.levelGain();
+	    c.upHealthMax(RNG); //adding stats accordingly, depending on RNG and such
+        c.upStrength(RNG);
+        c.upSkill(RNG);
+        c.upSpeed(RNG);
+        c.upDefence(RNG);
+        c.upMDefence(RNG);
+        c.upBuild(RNG);
+        return c;
+
+    }
+
+    public TreeMap<Character, Weapons[]> reviveAll(TreeMap<Character, Weapons[]> characters){
+        Set<Character> players= characters.keySet(); //turns into set to be manipulated (screw iterators lol)
+
+        for (Character chars: players){
+            //finding player with lowest stats
+            chars.reviveChar();
+        }
+
+        TreeMap<Character,Weapons[]> tempProfileMap = new TreeMap<Character,Weapons[]>();
+
+        for (Character chars:players){
+            Weapons[] arsenal=tempProfileMap.get(chars);
+            tempProfileMap.put(chars,arsenal); //puts back into temporary profileMap
+        }
+
+        return tempProfileMap;
+    }
 
     public void battleSystem(Character enemyFight, Weapons[] enemyArsenal){ //since enemies differ accoreding to collision, must account for all cases
 	    boolean fighting= true; //will determine when the battle ends
+        boolean enemyWon=false; //will be decided whether experience is given or not
 
         Scanner choice = new Scanner(System.in);
 
@@ -370,6 +456,7 @@ public class Attack implements Serializable {
                 //checking to see if enemy dies
 
                 if (enemyFight.charFallen()==true){
+                    enemyWon=true; //that means enemy has died
                     break; //will break the loop so it switches to enemy phase, more loops will break then
                 }
 
@@ -382,7 +469,7 @@ public class Attack implements Serializable {
             }
 
             int mostDamage=-1; //initilizing variable, will be used to see which character is most vulnerable
-            Character mostVulnerable= new Character("meme,0,0,0,0,0,0,0,2,E,E,Sword,Lance,2,lol,lol,0,MemeGod,Physical");
+            Character mostVulnerable= new Character("meme,0,0,0,0,0,0,0,2,E,E,Sword,Lance,1,Sure Strike,0,MemeGod,Physical,0,0,0,0,0,0,0,0,0");
             //will be used to find character that can get most damage inflicted upon them, var already initialized
 
 
@@ -425,6 +512,14 @@ public class Attack implements Serializable {
         }
 
         choice.close();
+
+        if (enemyWon!=true){//if player wins
+            profileMap=gainExperience(profileMap,enemyFight); //adds experience before game terminates
+        }
+        else{//if enemy wins
+            profileMap=reviveAll(profileMap);
+        }
+
     }
 
 }
@@ -451,11 +546,22 @@ class Character{
 	
 	private String Type; //determines whether they're magical or physical fighters
 	
-	private int EXP; //experience that will determine level ups
-	
 	private int HP; //will be the variable that is changed
 	
 	private boolean fallen= false; //will determine if a character has fallen
+	
+	private int LVL; //game will be a level system that will increase stats accordingly
+	private int EXP; 
+	
+	private int HPGROWTH; //will be the growths gained based on level
+	private int STRGROWTH;
+	private int SKLGROWTH;
+	private int SPDGROWTH;
+	private int DEFGROWTH;
+	private int MDEFGROWTH;
+	private int BLDGROWTH;
+	
+	private ArrayList<Integer> weaponEXP= new ArrayList<Integer>(); //the different types of weapon experiences
 	
 	public Character(String characterStat) { //constructor for character class
 		
@@ -489,6 +595,22 @@ class Character{
 		
 		this.EXP=Integer.parseInt(data[tempPos+SKLNUM+1]);
 		this.Type=data[tempPos+SKLNUM+2];
+		
+		tempPos=tempPos+SKLNUM+2;
+		
+		this.LVL=Integer.parseInt(data[tempPos+1]);
+		this.EXP=Integer.parseInt(data[tempPos+2]);
+		this.HPGROWTH=Integer.parseInt(data[tempPos+3]);
+		this.STRGROWTH=Integer.parseInt(data[tempPos+4]);
+		this.SKLGROWTH=Integer.parseInt(data[tempPos+5]);
+		this.SPDGROWTH=Integer.parseInt(data[tempPos+6]);
+		this.DEFGROWTH=Integer.parseInt(data[tempPos+7]);
+		this.MDEFGROWTH=Integer.parseInt(data[tempPos+8]);
+		this.BLDGROWTH=Integer.parseInt(data[tempPos+9]);
+		
+		for (int i=0;i<WPNTYPES;i++) {
+			weaponEXP.add(Integer.parseInt(data[tempPos+9+i+1]));
+		}
 		
 		HP=HPMAX; //assigns the original health of a character to the max health
 		
@@ -536,6 +658,10 @@ class Character{
 		return Type;
 	}
 	
+	public int getLevel() {
+		return LVL;
+	}
+	
 	public int getExp() {
 		return EXP;
 	}
@@ -575,38 +701,98 @@ class Character{
 	
 	public void reviveChar() { //reviving characters after battle
 		if (fallen=true) {
+			HP=1; //critical condition for player, must get healed
 			fallen=false; //will revive of the player
 		}
 	}
 	
-	public void changeExp(int additionalExp) {
+	public boolean changeExp(int additionalExp) {
 		EXP+=additionalExp;
+		if (EXP>=100) {
+			return true;
+		}
+		else return false;
+	}
+	
+	public void levelGain() {
+		LVL+=1;
+		EXP-=100;
+	}
+	
+	public void weaponExpGain(int placement, int expGain) {
+		for (int i=0;i<weaponEXP.size();i++){
+			if (i==placement) {
+				if (!WeaponRanks.get(i).equals("A")) { //as long as character hasn't capped stats
+					weaponEXP.set(i, weaponEXP.get(i)+expGain); //sets it as that
+					if (weaponEXP.get(i)>150) {
+						weaponEXP.set(i, 150); //caps weapon experience when weapon fully mastered
+					}
+				}
+			}
+		}
+		
+	}
+	
+	public void upgradeWeaponRank(int placement) { //for upgrading weapons ranks, allows more gameplay variety
+		if (weaponEXP.get(placement)<30) {
+			WeaponRanks.set(placement,"E");
+		}
+		else if (weaponEXP.get(placement)>=30 && weaponEXP.get(placement)<60) {
+			WeaponRanks.set(placement,"D");
+		}
+		else if (weaponEXP.get(placement)>=60 && weaponEXP.get(placement)<100) {
+			WeaponRanks.set(placement,"C");
+		}
+		else if (weaponEXP.get(placement)>=100 && weaponEXP.get(placement)<150) {
+			WeaponRanks.set(placement,"B");
+		}
+		else if (weaponEXP.get(placement)==150) {
+			WeaponRanks.set(placement,"A");
+		}
 	}
 	
 	//METHODS TO RAISE STATS DURING LEVELS
 	
-	public void upHealthMax() { //will boost the health cap for a character during a level up
-		HPMAX+=1;
+	public void upHealthMax(int RNG) { //will boost the health cap for a character during a level up
+		if (RNG<=HPGROWTH) {
+			HPMAX+=1;
+		}
 	}
 	
-	public void upStrength() { //will boost the health cap for a character during a level up
-		STR+=1;
+	public void upStrength(int RNG) { //will boost the health cap for a character during a level up
+		if (RNG<=STRGROWTH) {
+			STR+=1;
+		}
 	}
 	
-	public void upSkill() { //will boost the health cap for a character during a level up
-		SKL+=1;
+	public void upSkill(int RNG) { //will boost the health cap for a character during a level up
+		if (RNG<=SKLGROWTH) {
+			SKL+=1;
+		}
 	}
 	
-	public void upSpeed() { //will boost the health cap for a character during a level up
-		SPD+=1;
+	public void upSpeed(int RNG) { //will boost the health cap for a character during a level up
+		if (RNG<=SPDGROWTH) {
+			SPD+=1;
+		}
 	}
 	
-	public void upDefence() { //will boost the health cap for a character during a level up
-		DEF+=1;
+	public void upDefence(int RNG) { //will boost the health cap for a character during a level up
+		if (RNG<=DEFGROWTH) {
+			DEF+=1;
+		}
 	}
 	
-	public void upMDefence() { //will boost the health cap for a character during a level up
-		MDEF+=1;
+	public void upMDefence(int RNG) { //will boost the health cap for a character during a level up
+		if (RNG<=MDEFGROWTH) {
+			MDEF+=1;
+		}
+	}
+	
+	public void upBuild(int RNG) {
+		if (RNG<=BLDGROWTH) {
+			BLD+=1;
+		}
 	}
 	
 	//METHODS TO CHECK CERTAIN CONDITIONS
@@ -630,6 +816,8 @@ class Weapons{
 	
 	private int STR; //will be used to determine might of weapon
     private int HIT; //hit rate of the weapon, assists in accuracy
+    
+    private int expGAIN; //will determine how much weapon exp each weapon gives
 	
 	public Weapons(String weaponStat) { //constructor for weapon class
 		
@@ -642,6 +830,7 @@ class Weapons{
 		this.Weight=Integer.parseInt(data[4]);
 		this.STR=Integer.parseInt(data[5]);
 		this.HIT=Integer.parseInt(data[6]);
+		this.expGAIN=Integer.parseInt(data[7]);
 		
 	}
 	
@@ -658,20 +847,26 @@ class Weapons{
 	public String getRank() {
 		return weaponRank;
 	}
-	
-	public int getValue() {
-		return Value;
-	}
-	
-	public int getWeight() {
-		return Weight;
-	}
-	
-	public int getMight() {
-		return STR;
-	}
 
-	public int getHit() {return HIT;}
+    public int getValue() {
+        return Value;
+    }
+
+    public int getWeight() {
+        return Weight;
+    }
+
+    public int getMight() {
+        return STR;
+    }
+
+	public int getHit() {
+		return HIT;
+	}
+	
+	public int getWeaponEXP() {
+		return expGAIN;
+	}
 	
 	//METHODS TO ALTER INFORMATIONS
 	
