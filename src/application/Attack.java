@@ -3,14 +3,6 @@ package application;
 //Vinh Nguyen and Maggie Maun
 //Our FSE which will be a role-playing game with a developed story; Massey Quest
 
-
-import javafx.application.Application; //inputting all necessary aspects
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
 import java.util.*;
 import java.io.*; //using serailization to input character data
 import java.util.TreeMap;
