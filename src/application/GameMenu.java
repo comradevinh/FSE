@@ -15,7 +15,7 @@ import java.awt.geom.Rectangle2D;
 public class GameMenu extends JFrame implements ActionListener{
 	
 	GamePanel menuScreen;
-	private Button[] buttons= new Button[3];
+	private MenuButton[] buttons= new MenuButton[3];
 	private String names;  // used for CardLayout names
 	
 	public GameMenu(String name) { //constructor
@@ -33,11 +33,9 @@ public class GameMenu extends JFrame implements ActionListener{
 		this.names=name;
 		
     	for (int i=0;i<buttons.length;i++) { //making buttons en masse
-    		buttons[i]= new Button(new Dimension(500,75),new Point(50,300+100*i),this);
+    		buttons[i]= new MenuButton(new Dimension(500,75),new Point(50,300+100*i),this);
     	}
-		
-		this.setLayout(null);
-		for (Button button: buttons) {
+		for (MenuButton button: buttons) {
 			menuScreen.add(button);
 		}
 
@@ -57,6 +55,7 @@ public class GameMenu extends JFrame implements ActionListener{
 
 		if (menuScreen!=null){
 			//menuScreen.control();
+			repaint();
 			menuScreen.repaint();
 		}
 
@@ -82,17 +81,19 @@ class GamePanel extends JPanel{
 		
 		Image logo= new ImageIcon("Images/Massey Quest Logo.png").getImage();
 		
-		g.drawImage(logo,0,0,this);
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, 800, 600);
+		g.drawImage(logo,10,0,this);
 	}
 	
 }
 
-class Button extends JButton{
+class MenuButton extends JButton{
 	private Dimension dimension;
 	private Point position;
 	private String Name;
 	
-	public Button(Dimension measurements, Point point, ActionListener makeItWorkLol) {
+	public MenuButton(Dimension measurements, Point point, ActionListener makeItWorkLol) {
 		this.dimension=measurements;
 		this.position= point;		
 		this.addActionListener(makeItWorkLol); //MAKES THE BUTTONS WORK YAY
@@ -103,10 +104,10 @@ class Button extends JButton{
 		ImageIcon hoverButton;
 		ImageIcon pressButton;
 		
-		this.setBorderPainted(false);
-		this.setBorder(null);
-		this.setMargin(new Insets(0, 0, 0, 0));
-		this.setContentAreaFilled(false);
+		//this.setBorderPainted(false);
+		//this.setBorder(null);
+		//this.setMargin(new Insets(0, 0, 0, 0));
+		//this.setContentAreaFilled(false);
 		
 		pressButton=new ImageIcon(new ImageIcon(String.format("Images/Press Button.png")).getImage());
 		normalButton=new ImageIcon(new ImageIcon(String.format("Images/Normal Button.png")).getImage());
